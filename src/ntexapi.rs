@@ -2784,7 +2784,7 @@ pub const USER_SHARED_DATA: *const KUSER_SHARED_DATA = 0x7FFE0000 as *const _;
 pub unsafe fn NtGetTickCount64() -> ULONGLONG {
     let mut tick_count: ULARGE_INTEGER = MaybeUninit::zeroed().assume_init();
     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))] {
-        let tick_count_quad = core::ptr::read_volatile(&(*USER_SHARED_DATA).TickCountQuad);
+        let tick_count_quad = core::ptr::read_volatile(&(*USER_SHARED_DATA).u.TickCountQuad);
         *tick_count.QuadPart_mut() = tick_count_quad;
     }
     #[cfg(target_arch = "x86")] {
@@ -2807,7 +2807,7 @@ pub unsafe fn NtGetTickCount64() -> ULONGLONG {
 #[inline]
 pub unsafe fn NtGetTickCount() -> ULONG {
     #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))] {
-        ((core::ptr::read_volatile(&(*USER_SHARED_DATA).TickCountQuad)
+        ((core::ptr::read_volatile(&(*USER_SHARED_DATA).u.TickCountQuad)
             * (*USER_SHARED_DATA).TickCountMultiplier as u64) >> 24) as u32
     }
     #[cfg(target_arch = "x86")] {
@@ -2827,6 +2827,7 @@ pub unsafe fn NtGetTickCount() -> ULONG {
             )) as u32
     }
 }
+
 
 
 EXTERN!{extern "system" {
